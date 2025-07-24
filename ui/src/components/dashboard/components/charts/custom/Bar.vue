@@ -5,7 +5,7 @@
         :data="parsedData"
         :options="options"
         :plugins="chartOptions?.legend?.enabled ? [customBarLegend] : []"
-        class="chart"
+        :class="props.short ? 'short-chart' : 'chart'"
     />
     <NoData v-else />
 </template>
@@ -39,6 +39,7 @@
         chart: {type: Object, required: true},
         showDefault: {type: Boolean, default: false},
         defaultFilters: {type: Array, default: () => []},
+        short: {type: Boolean, default: false},
     });
 
     const {data, chartOptions} = props.chart;
@@ -73,7 +74,7 @@
                     }
                     : {}),
                 tooltip: {
-                    enabled: true,
+                    enabled: props.short ? false : true,
                     filter: (value) => value.raw,
                     callbacks: {
                         label: (value) => {
@@ -86,20 +87,22 @@
             scales: {
                 x: {
                     title: {
-                        display: true,
+                        display: props.short ? false : true,
                         text: data.columns[chartOptions.column].displayName ?? chartOptions.column,
                     },
                     position: "bottom",
                     ...DEFAULTS,
+                    display: props.short ? false : true,
                 },
                 y: {
                     title: {
-                        display: true,
+                        display: props.short ? false : true,
                         text: aggregator[0][1].displayName ?? aggregator[0][0],
                     },
                     beginAtZero: true,
                     position: "left",
                     ...DEFAULTS,
+                    display: props.short ? false : true,
                     ticks: {
                         ...DEFAULTS.ticks,
                         callback: value => isDurationAgg() ? Utils.humanDuration(value) : value
@@ -183,6 +186,15 @@
 
         &:not(.with-legend) {
             #{--chart-height}: 231px;
+        }
+
+        min-height: var(--chart-height);
+        max-height: var(--chart-height);
+    }
+
+    .short-chart {
+        &:not(.with-legend) {
+            #{--chart-height}: 40px;
         }
 
         min-height: var(--chart-height);
